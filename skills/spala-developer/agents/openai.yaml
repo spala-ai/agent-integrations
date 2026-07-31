@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spala Developer"
+  short_description: "Build app backends with Spala MCP"
+  default_prompt: "Use $spala-developer to build and publish this app backend through Spala MCP."

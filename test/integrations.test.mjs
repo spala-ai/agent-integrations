@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
@@ -89,12 +90,52 @@ test('client coverage and fallback installer are explicit', async () => {
 
 test('all clients share one canonical skill and MCP package', async () => {
   const manifest = await json('integration.manifest.json');
+  const claudeMarketplace = await json('.claude-plugin/marketplace.json');
+  const cursor = await json('.cursor-plugin/plugin.json');
+  const cursorMarketplace = await json('.cursor-plugin/marketplace.json');
+  const gemini = await json('gemini-extension.json');
   const openai = await json('.codex-plugin/plugin.json');
   const openaiMarketplace = await json('.agents/plugins/marketplace.json');
 
   assert.equal(manifest.clients.openai.manifest, '.codex-plugin/plugin.json');
+  assert.equal(claudeMarketplace.plugins[0]?.source, '.');
+  assert.equal(cursor.skills, './skills/');
+  assert.equal(cursor.mcpServers, './.mcp.json');
+  assert.equal(cursorMarketplace.plugins[0]?.source, '.');
+  assert.equal(gemini.contextFileName, 'GEMINI.md');
   assert.equal(openai.skills, './skills/');
   assert.equal(openai.mcpServers, './.mcp.json');
   assert.equal(openaiMarketplace.plugins[0]?.source?.path, '.');
   assert.equal((await filesUnder(root)).some(file => file.startsWith('plugins/spala/')), false);
+});
+
+test('bundled skill lock records every local skill version and digest', async () => {
+  const lock = await json('skills.lock.json');
+  const skillNames = (await readdir(path.join(root, 'skills'), { withFileTypes: true }))
+    .filter(entry => entry.isDirectory())
+    .map(entry => entry.name)
+    .sort();
+
+  assert.equal(lock.schemaVersion, 1);
+  assert.equal(lock.source, 'spala-platform:mcp/skills');
+  assert.equal(lock.distributionVersion, (await json('package.json')).version);
+  assert.deepEqual(Object.keys(lock.skills).sort(), skillNames);
+
+  for (const name of skillNames) {
+    const content = await readFile(path.join(root, 'skills', name, 'SKILL.md'), 'utf8');
+    const version = content.match(/^version:\s*["']?([^"'\n]+)["']?$/m)?.[1];
+    const digest = createHash('sha256').update(content).digest('hex');
+    assert.equal(lock.skills[name].version, version);
+    assert.equal(lock.skills[name].sha256, digest);
+
+    const packageFiles = (await filesUnder(path.join(root, 'skills', name))).sort();
+    assert.deepEqual(Object.keys(lock.skills[name].files).sort(), packageFiles);
+    for (const relative of packageFiles) {
+      const file = await readFile(path.join(root, 'skills', name, relative));
+      assert.equal(
+        lock.skills[name].files[relative],
+        createHash('sha256').update(file).digest('hex'),
+      );
+    }
+  }
 });

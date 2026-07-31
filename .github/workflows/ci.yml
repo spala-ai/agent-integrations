@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 10.32.1
@@ -23,3 +25,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run ci
+      - name: Check skill release freshness against branch base
+        env:
+          SKILL_RELEASE_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -n "$SKILL_RELEASE_BASE" ] && ! printf '%s' "$SKILL_RELEASE_BASE" | grep -Eq '^0+$'; then
+            pnpm check:skill-release -- --base "$SKILL_RELEASE_BASE"
+          fi

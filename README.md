@@ -111,8 +111,37 @@ After the public repository is created, run the release-only repository check:
 pnpm test:links:release
 ```
 
-All clients use the same root `skills/` directory and `.mcp.json`. There are
-no generated client-specific copies.
+All clients use the same root `skills/` directory and the same public MCP
+endpoint. Codex and Cursor reference `.mcp.json`; Claude and Gemini express
+that endpoint in their native manifests. There are no generated
+client-specific copies.
+
+## Skill Source And Updates
+
+The project MCP package is the source of truth for the nine customer-facing
+skills. This repository carries one reviewed mirror so installed clients have
+the guidance immediately, including before OAuth completes or when the MCP is
+temporarily unavailable.
+
+At runtime, `spala_start` returns the focused skill version and SHA from the
+selected project MCP. A client may fetch that focused skill with
+`mcp_get_skill` when the bundled copy is missing or its version differs.
+SHA-256 verifies release integrity and detects invalid same-version drift when
+the client can inspect the local file. Runtime downloads are a freshness path,
+not an installation dependency, and must not silently rewrite the installed
+plugin package.
+
+Release maintainers refresh the bundle from a platform checkout with:
+
+```bash
+pnpm sync:skills -- --source <platform-repository>
+pnpm check:skills -- --source <platform-repository>
+```
+
+`skills.lock.json` records the version and SHA-256 digest of every bundled
+skill package file. CI verifies the lock against the package, requires a skill
+version bump for `SKILL.md` changes, and requires a distribution version bump
+for any bundled skill package change.
 
 ## License
 
