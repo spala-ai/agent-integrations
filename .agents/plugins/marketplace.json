@@ -8,7 +8,7 @@
       "name": "spala",
       "source": {
         "source": "local",
-        "path": "./plugins/spala"
+        "path": "."
       },
       "policy": {
         "installation": "AVAILABLE",

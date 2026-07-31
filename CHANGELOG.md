@@ -9,3 +9,5 @@
 - Added manifest-alignment, generated-asset, and public-package security checks.
 - Preserved Claude Code's established `spala-marketplace` identifier while
   consolidating the Claude-only plugin into this multi-client repository.
+- Unified the Codex plugin at the repository root so every client consumes the
+  same skills and MCP definition without generated copies.

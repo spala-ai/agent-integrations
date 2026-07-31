@@ -18,7 +18,7 @@
       "marketplace": ".claude-plugin/marketplace.json"
     },
     "openai": {
-      "manifest": "plugins/spala/.codex-plugin/plugin.json",
+      "manifest": ".codex-plugin/plugin.json",
       "marketplace": ".agents/plugins/marketplace.json"
     },
     "gemini-cli": {
