@@ -124,12 +124,19 @@ the guidance immediately, including before OAuth completes or when the MCP is
 temporarily unavailable.
 
 At runtime, `spala_start` returns the focused skill version and SHA from the
-selected project MCP. A client may fetch that focused skill with
-`mcp_get_skill` when the bundled copy is missing or its version differs.
-SHA-256 verifies release integrity and detects invalid same-version drift when
-the client can inspect the local file. Runtime downloads are a freshness path,
-not an installation dependency, and must not silently rewrite the installed
-plugin package.
+selected project MCP. The reviewed bundled copy remains the trusted execution
+baseline. If the local skill is missing, a client may fetch the focused skill
+with `mcp_get_skill` as project-provided guidance. If the remote version
+differs, the client may fetch it for review but must not silently replace or
+follow the bundled instructions.
+
+The version is a freshness advisory. The SHA-256 value verifies transfer
+consistency only: because the skill content and hash come from the same project
+MCP, it does not authenticate the publisher. A remote update becomes trusted
+only after it matches an independently reviewed integration release recorded
+in `skills.lock.json`, or after explicit review and approval. Runtime downloads
+are therefore a compatibility and review path, not an installation dependency,
+and must never rewrite the installed plugin package automatically.
 
 Release maintainers refresh the bundle from a platform checkout with:
 
