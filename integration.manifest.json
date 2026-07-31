@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "name": "spala",
+  "version": "1.2.0",
+  "publicMcp": {
+    "serverName": "spala_public_mcp",
+    "url": "https://mcp.spala.ai/mcp",
+    "purpose": "discovery-authentication-project-handoff"
+  },
+  "projectMcp": {
+    "resolvedDynamically": true,
+    "credentialsBundled": false,
+    "urlsBundled": false
+  },
+  "clients": {
+    "claude-code": {
+      "manifest": ".claude-plugin/plugin.json",
+      "marketplace": ".claude-plugin/marketplace.json"
+    },
+    "openai": {
+      "manifest": "plugins/spala/.codex-plugin/plugin.json",
+      "marketplace": ".agents/plugins/marketplace.json"
+    },
+    "gemini-cli": {
+      "manifest": "gemini-extension.json"
+    },
+    "cursor": {
+      "manifest": ".cursor-plugin/plugin.json",
+      "marketplace": ".cursor-plugin/marketplace.json"
+    },
+    "vscode-copilot": {
+      "format": "claude-plugin",
+      "manifest": ".claude-plugin/plugin.json"
+    }
+  },
+  "fallbackInstaller": {
+    "package": "@spala-ai/mcp-install",
+    "publicCommand": "npx --yes @spala-ai/mcp-install --public --yes"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "spala",
+  "description": "Build and operate customer application backends through Spala MCP with guided architecture, auth, validation, publishing, and runtime review.",
+  "version": "1.2.0",
+  "author": {
+    "name": "Spala",
+    "url": "https://spala.ai"
+  },
+  "mcpServers": {
+    "spala_public_mcp": {
+      "type": "http",
+      "url": "https://mcp.spala.ai/mcp"
+    }
+  }
+}

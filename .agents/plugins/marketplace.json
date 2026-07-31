@@ -1,0 +1,20 @@
+{
+  "name": "spala-integrations",
+  "interface": {
+    "displayName": "Spala"
+  },
+  "plugins": [
+    {
+      "name": "spala",
+      "source": {
+        "source": "local",
+        "path": "./plugins/spala"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

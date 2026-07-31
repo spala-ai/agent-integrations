@@ -1,0 +1,11 @@
+{
+  "name": "spala",
+  "version": "1.2.0",
+  "description": "Build and operate customer application backends through Spala MCP.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "spala_public_mcp": {
+      "httpUrl": "https://mcp.spala.ai/mcp"
+    }
+  }
+}
