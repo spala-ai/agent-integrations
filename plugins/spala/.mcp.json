@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "spala_public_mcp": {
+      "type": "http",
+      "url": "https://mcp.spala.ai/mcp"
+    }
+  }
+}

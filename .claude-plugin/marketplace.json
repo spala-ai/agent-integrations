@@ -1,0 +1,29 @@
+{
+  "name": "spala-integrations",
+  "description": "Official Spala integrations for AI-assisted backend development.",
+  "owner": {
+    "name": "Spala",
+    "url": "https://spala.ai"
+  },
+  "plugins": [
+    {
+      "name": "spala",
+      "source": ".",
+      "description": "Connect Claude Code to Spala discovery, project handoff, and guided backend workflows.",
+      "version": "1.2.0",
+      "author": {
+        "name": "Spala",
+        "url": "https://spala.ai"
+      },
+      "category": "database",
+      "tags": [
+        "spala",
+        "backend",
+        "mcp",
+        "postgres",
+        "auth",
+        "step-script"
+      ]
+    }
+  ]
+}

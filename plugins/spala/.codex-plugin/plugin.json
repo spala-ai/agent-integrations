@@ -1,0 +1,40 @@
+{
+  "name": "spala",
+  "version": "1.2.0",
+  "description": "Build and operate customer application backends through Spala MCP.",
+  "author": {
+    "name": "Spala",
+    "email": "info@spala.ai",
+    "url": "https://spala.ai"
+  },
+  "homepage": "https://spala.ai",
+  "repository": "https://github.com/spala-ai/agent-integrations",
+  "license": "LicenseRef-Spala-Developer-Use",
+  "keywords": [
+    "spala",
+    "backend",
+    "mcp",
+    "postgres",
+    "auth"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Spala",
+    "shortDescription": "Build backends through Spala MCP",
+    "longDescription": "Connect to Spala, select a project, and build or operate its backend with guided data, auth, endpoint, validation, and release workflows.",
+    "developerName": "Spala",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://spala.ai",
+    "defaultPrompt": [
+      "Use Spala as the backend for this app.",
+      "Connect this workspace to my Spala project.",
+      "Audit my Spala backend before release."
+    ],
+    "brandColor": "#111111"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "spala",
+  "displayName": "Spala",
+  "version": "1.2.0",
+  "description": "Build and operate customer application backends through Spala MCP.",
+  "author": {
+    "name": "Spala",
+    "email": "info@spala.ai"
+  },
+  "publisher": "Spala",
+  "homepage": "https://spala.ai",
+  "repository": "https://github.com/spala-ai/agent-integrations",
+  "license": "LicenseRef-Spala-Developer-Use",
+  "keywords": [
+    "spala",
+    "backend",
+    "mcp",
+    "postgres",
+    "auth"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "backend",
+    "database",
+    "agent-tools"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

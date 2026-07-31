@@ -1,0 +1,17 @@
+{
+  "name": "spala-integrations",
+  "owner": {
+    "name": "Spala",
+    "email": "info@spala.ai"
+  },
+  "metadata": {
+    "description": "Official Spala agent integrations."
+  },
+  "plugins": [
+    {
+      "name": "spala",
+      "source": ".",
+      "description": "Connect Cursor to Spala discovery, project handoff, and guided backend workflows."
+    }
+  ]
+}
