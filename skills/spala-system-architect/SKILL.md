@@ -1,6 +1,6 @@
 ---
 name: spala-system-architect
-version: 1.4.1
+version: 1.4.2
 description: "Design backend architecture and resource contracts for customer apps built through Spala MCP: models, endpoints, auth, ownership, resource semantics, addons, and technical build plans."
 ---
 

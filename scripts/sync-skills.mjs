@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import {
   existsSync,
   lstatSync,
   mkdirSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -19,6 +21,9 @@ const lockPath = join(root, 'skills.lock.json');
 const distributionVersion = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const checkOnly = process.argv.includes('--check');
 const sourceArgument = argumentValue('--source');
+const CANONICAL_SOURCE_PATH = 'mcp/skills';
+const GIT_REVISION_PATTERN = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
+const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
 const SKILL_NAMES = [
   'spala-auth-security',
@@ -51,6 +56,18 @@ function argumentValue(name) {
 
 function sha256(content) {
   return createHash('sha256').update(content).digest('hex');
+}
+
+function git(directory, args, failureMessage) {
+  try {
+    return execFileSync('git', args, {
+      cwd: directory,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    throw new Error(failureMessage);
+  }
 }
 
 function parseFrontmatter(content, file) {
@@ -160,22 +177,40 @@ function readSkillSet(directory) {
   return skills;
 }
 
-function lockFor(skills) {
+function skillEntriesForLock(skills) {
+  return Object.fromEntries(SKILL_NAMES.map(name => [
+    name,
+    {
+      version: skills[name].version,
+      sha256: skills[name].sha256,
+      files: Object.fromEntries(Object.entries(skills[name].files).map(([file, value]) => [
+        file,
+        value.sha256,
+      ])),
+    },
+  ]));
+}
+
+function sourceTreeDigest(skills) {
+  const entries = [];
+  for (const name of SKILL_NAMES) {
+    for (const [file, value] of Object.entries(skills[name].files)
+      .sort(([left], [right]) => left.localeCompare(right))) {
+      entries.push({
+        path: `${name}/${file.split(sep).join('/')}`,
+        sha256: value.sha256,
+      });
+    }
+  }
+  return sha256(JSON.stringify(entries));
+}
+
+function lockFor(skills, source) {
   return {
-    schemaVersion: 1,
-    source: 'spala-platform:mcp/skills',
+    schemaVersion: 2,
+    source,
     distributionVersion,
-    skills: Object.fromEntries(SKILL_NAMES.map(name => [
-      name,
-      {
-        version: skills[name].version,
-        sha256: skills[name].sha256,
-        files: Object.fromEntries(Object.entries(skills[name].files).map(([file, value]) => [
-          file,
-          value.sha256,
-        ])),
-      },
-    ])),
+    skills: skillEntriesForLock(skills),
   };
 }
 
@@ -183,26 +218,155 @@ function comparable(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
-function resolveSource(value) {
+function relativeGitPath(from, to) {
+  return relative(from, to).split(sep).join('/');
+}
+
+function resolveCanonicalSource(value) {
   if (!value) return null;
-  const candidate = resolve(value);
+  const resolvedCandidate = resolve(value);
+  if (!existsSync(resolvedCandidate)) {
+    throw new Error(`Canonical source must be inside a Git repository: ${resolvedCandidate}`);
+  }
+  const candidate = realpathSync(resolvedCandidate);
   const nested = join(candidate, 'mcp', 'skills');
-  return existsSync(nested) ? nested : candidate;
+  const sourceRoot = realpathSync(existsSync(nested) ? nested : candidate);
+  const repositoryRoot = realpathSync(git(
+    candidate,
+    ['rev-parse', '--show-toplevel'],
+    `Canonical source must be inside a Git repository: ${candidate}`,
+  ));
+  const sourcePath = relativeGitPath(repositoryRoot, sourceRoot);
+  if (sourcePath !== CANONICAL_SOURCE_PATH) {
+    throw new Error(
+      `Canonical source must be the repository's ${CANONICAL_SOURCE_PATH} directory; found ${sourcePath}.`,
+    );
+  }
+
+  return {
+    repositoryRoot,
+    sourcePath,
+    sourceRoot,
+  };
+}
+
+function assertCommittedSourceFiles(source, skills) {
+  const trackedOutput = git(
+    source.repositoryRoot,
+    ['ls-files', '-z', '--cached', '--', source.sourcePath],
+    `Could not inspect committed canonical source files in ${source.sourceRoot}.`,
+  );
+  const tracked = new Set(trackedOutput ? trackedOutput.split('\0') : []);
+  for (const name of SKILL_NAMES) {
+    for (const file of Object.keys(skills[name].files)) {
+      const repositoryPath = `${source.sourcePath}/${name}/${file.split(sep).join('/')}`;
+      if (!tracked.has(repositoryPath)) {
+        throw new Error(`Canonical source file is not committed to Git: ${repositoryPath}`);
+      }
+    }
+  }
+}
+
+function readCanonicalSource(value) {
+  const source = resolveCanonicalSource(value);
+  const revision = git(
+    source.repositoryRoot,
+    ['rev-parse', 'HEAD'],
+    `Canonical source repository has no committed revision: ${source.repositoryRoot}`,
+  );
+  const dirty = git(
+    source.repositoryRoot,
+    ['status', '--porcelain=v1', '--untracked-files=all', '--', source.sourcePath],
+    `Could not inspect canonical source status in ${source.repositoryRoot}.`,
+  );
+  if (dirty) {
+    throw new Error(
+      `Canonical ${CANONICAL_SOURCE_PATH} source is dirty; commit or discard its changes before syncing.`,
+    );
+  }
+
+  const skills = readSkillSet(source.sourceRoot);
+  assertCommittedSourceFiles(source, skills);
+  const revisionAfterRead = git(
+    source.repositoryRoot,
+    ['rev-parse', 'HEAD'],
+    `Canonical source repository has no committed revision: ${source.repositoryRoot}`,
+  );
+  const dirtyAfterRead = git(
+    source.repositoryRoot,
+    ['status', '--porcelain=v1', '--untracked-files=all', '--', source.sourcePath],
+    `Could not inspect canonical source status in ${source.repositoryRoot}.`,
+  );
+  if (revisionAfterRead !== revision || dirtyAfterRead) {
+    throw new Error(`Canonical ${CANONICAL_SOURCE_PATH} source changed while it was being read.`);
+  }
+
+  return {
+    skills,
+    provenance: {
+      type: 'git',
+      path: CANONICAL_SOURCE_PATH,
+      revision,
+      treeSha256: sourceTreeDigest(skills),
+    },
+  };
+}
+
+function validateRecordedProvenance(recorded, bundled) {
+  if (recorded.schemaVersion === 1) {
+    if (recorded.source !== 'spala-platform:mcp/skills') {
+      throw new Error('skills.lock.json has invalid legacy source provenance.');
+    }
+    return;
+  }
+  if (recorded.schemaVersion !== 2) {
+    throw new Error(`skills.lock.json has unsupported schema version ${recorded.schemaVersion}.`);
+  }
+
+  const source = recorded.source;
+  const keys = source && typeof source === 'object' && !Array.isArray(source)
+    ? Object.keys(source).sort()
+    : [];
+  if (comparable(keys) !== comparable(['path', 'revision', 'treeSha256', 'type'])) {
+    throw new Error('skills.lock.json has invalid source provenance fields.');
+  }
+  if (
+    source.type !== 'git'
+    || source.path !== CANONICAL_SOURCE_PATH
+    || !GIT_REVISION_PATTERN.test(source.revision)
+    || !SHA256_PATTERN.test(source.treeSha256)
+  ) {
+    throw new Error('skills.lock.json has invalid source provenance.');
+  }
+  if (source.treeSha256 !== sourceTreeDigest(bundled)) {
+    throw new Error('skills.lock.json source tree digest does not match the bundled skills.');
+  }
+}
+
+function lockForRecordedBundle(recorded, bundled) {
+  return {
+    schemaVersion: recorded.schemaVersion,
+    source: recorded.source,
+    distributionVersion,
+    skills: skillEntriesForLock(bundled),
+  };
 }
 
 const bundled = readSkillSet(targetRoot);
-const bundledLock = lockFor(bundled);
 
 if (checkOnly) {
   const recorded = JSON.parse(readFileSync(lockPath, 'utf8'));
-  if (comparable(recorded) !== comparable(bundledLock)) {
+  validateRecordedProvenance(recorded, bundled);
+  if (comparable(recorded) !== comparable(lockForRecordedBundle(recorded, bundled))) {
     throw new Error('skills.lock.json does not match the bundled skills. Run pnpm sync:skills.');
   }
 
-  const sourceRoot = resolveSource(sourceArgument);
-  if (sourceRoot) {
-    const source = readSkillSet(sourceRoot);
-    if (comparable(lockFor(source)) !== comparable(bundledLock)) {
+  if (sourceArgument) {
+    const source = readCanonicalSource(sourceArgument);
+    if (comparable(source.provenance) !== comparable(recorded.source)) {
+      throw new Error('Supplied canonical MCP skill source does not match recorded provenance.');
+    }
+    if (comparable(skillEntriesForLock(source.skills)) !== comparable(recorded.skills)) {
       throw new Error('Bundled skills do not match the supplied canonical MCP skill source.');
     }
   }
@@ -211,15 +375,14 @@ if (checkOnly) {
   process.exit(0);
 }
 
-const sourceRoot = resolveSource(sourceArgument);
-if (!sourceRoot) {
+if (!sourceArgument) {
   throw new Error(
     'Provide the canonical platform skills with --source <platform-repo-or-mcp-skills-path>.',
   );
 }
 
-const source = readSkillSet(sourceRoot);
-const sourceLock = lockFor(source);
+const source = readCanonicalSource(sourceArgument);
+const sourceLock = lockFor(source.skills, source.provenance);
 if (existsSync(lockPath)) {
   const previousLock = JSON.parse(readFileSync(lockPath, 'utf8'));
   for (const name of SKILL_NAMES) {
@@ -245,7 +408,7 @@ for (const name of SKILL_NAMES) {
   const directory = join(targetRoot, name);
   rmSync(directory, { recursive: true, force: true });
   mkdirSync(directory, { recursive: true });
-  for (const [relative, file] of Object.entries(source[name].files)) {
+  for (const [relative, file] of Object.entries(source.skills[name].files)) {
     const target = join(directory, relative);
     mkdirSync(dirname(target), { recursive: true });
     writeFileSync(target, file.content);

@@ -1,6 +1,6 @@
 ---
 name: spala-developer
-version: 1.4.1
+version: 1.4.2
 description: "Build or modify customer app backends with Spala from a local CLI or IDE agent through Spala MCP: staged AI build, Step Script, validation, focused repair, publishing, and project_test_review."
 ---
 
@@ -35,9 +35,11 @@ treat the returned builder context, state, validation, and test-review evidence
 as the live capability contract for the connected Spala server. Legacy
 onboarding and tool-map calls remain optional compatibility guidance.
 
-When work moves to another phase, call `spala_start` with that phase and load
-only the focused skill it returns when the client supports local/downloadable
-skills. Typical routes are:
+When work moves to another phase, call `spala_start` with that phase and use
+only its focused skill route. Keep a reviewed bundled copy as the trusted
+baseline. If it is missing, retrieve the focused skill as project-provided
+guidance. Treat a different remote version as review-required; do not silently
+replace or follow the bundled instructions. Typical routes are:
 
 - `spala-auth-security` for auth, password fields, ownership, roles, tenant
   isolation, invitations, sessions, or secret fields.
@@ -59,7 +61,9 @@ needed instead of probing random tools or relearning the Step Script surface.
   `ai_create_*` as hosted AI aliases, not default local-agent tools.
 - Use onboarding tools (`spala_help`, `mcp_get_onboarding`,
   `mcp_get_tool_map`, `mcp_list_skills`, `mcp_get_skill`) for first-contact
-  guidance and local skill refresh.
+  guidance, compatibility discovery, and review of project-provided skill
+  updates. An MCP-provided version is a freshness advisory and its SHA-256
+  verifies transfer consistency, not publisher authenticity.
 - Use inspect tools (`project_get_builder_context`, `project_get_state`,
   `project_get_graph`, `builder_list_*`, `builder_get_*`) before planning or
   writing.

@@ -1,6 +1,6 @@
 ---
 name: spala-auth-security
-version: 1.4.1
+version: 1.4.2
 description: "Design, build, or review auth, password handling, ownership, tenant isolation, roles, sessions, invitations, and secret fields for customer apps built with Spala MCP."
 ---
 

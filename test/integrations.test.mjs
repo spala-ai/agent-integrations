@@ -116,8 +116,12 @@ test('bundled skill lock records every local skill version and digest', async ()
     .map(entry => entry.name)
     .sort();
 
-  assert.equal(lock.schemaVersion, 1);
-  assert.equal(lock.source, 'spala-platform:mcp/skills');
+  assert.equal(lock.schemaVersion, 2);
+  assert.deepEqual(Object.keys(lock.source).sort(), ['path', 'revision', 'treeSha256', 'type']);
+  assert.equal(lock.source.type, 'git');
+  assert.equal(lock.source.path, 'mcp/skills');
+  assert.match(lock.source.revision, /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/);
+  assert.match(lock.source.treeSha256, /^[0-9a-f]{64}$/);
   assert.equal(lock.distributionVersion, (await json('package.json')).version);
   assert.deepEqual(Object.keys(lock.skills).sort(), skillNames);
 

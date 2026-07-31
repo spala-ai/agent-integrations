@@ -1,6 +1,6 @@
 ---
 name: spala-data-modeler
-version: 1.4.1
+version: 1.4.2
 description: "Design or review customer app backend models, fields, relationships, resource semantics, product database switching, and schema contracts through Spala MCP."
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: spala-backend
-version: 1.4.1
+version: 1.4.2
 description: "Route customer app backend work through the connected Spala project MCP. Use when a user wants Spala to build, change, secure, audit, or release a customer app backend."
 ---
 
@@ -20,8 +20,11 @@ for an app.
 4. Run every available mandatory inspection before planning or changing
    resources. If an inspection is unavailable, report the missing scope or
    connection as the blocker.
-5. Fetch and follow only the `focusedSkill` returned by `spala_start` when the
-   client needs local skill text. Do not load unrelated customer skills.
+5. Use only the focused skill route returned by `spala_start`. Keep a reviewed
+   bundled copy as the trusted execution baseline. If it is missing, retrieve
+   the focused skill as project-provided guidance. If the remote version
+   differs, review it before use; do not silently replace or follow it. Do not
+   load unrelated customer skills.
 
 ## Focused Sequence
 
