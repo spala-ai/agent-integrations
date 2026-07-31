@@ -78,6 +78,7 @@ assert(cursor.mcpServers === './.mcp.json', 'Cursor must use the shared MCP defi
 assert(openai.mcpServers === './.mcp.json', 'OpenAI must use its synchronized MCP definition.');
 assert(cursorMarketplace.plugins.some(plugin => plugin.name === 'spala' && plugin.source === '.'), 'Cursor marketplace is not wired to the root plugin.');
 assert(claudeMarketplace.plugins.some(plugin => plugin.name === 'spala' && plugin.source === '.'), 'Claude marketplace is not wired to the root plugin.');
+assert(claudeMarketplace.name === 'spala-marketplace', 'Claude marketplace compatibility name drifted.');
 assert(openaiMarketplace.plugins.some(plugin => plugin.name === 'spala'), 'OpenAI marketplace is not wired to the Spala plugin.');
 
 const skillDirs = (await readdir(path.join(root, 'skills'), { withFileTypes: true }))

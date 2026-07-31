@@ -1,5 +1,5 @@
 {
-  "name": "spala-integrations",
+  "name": "spala-marketplace",
   "description": "Official Spala integrations for AI-assisted backend development.",
   "owner": {
     "name": "Spala",
@@ -9,7 +9,7 @@
     {
       "name": "spala",
       "source": ".",
-      "description": "Connect Claude Code to Spala discovery, project handoff, and guided backend workflows.",
+      "description": "Build customer application backends through Spala MCP with Step Script, models, endpoints, flows, tasks, triggers, agents, channels, auth and ownership rules, deterministic validation, publishing, SDK retrieval, and runtime review.",
       "version": "1.2.0",
       "author": {
         "name": "Spala",
@@ -19,10 +19,13 @@
       "tags": [
         "spala",
         "backend",
+        "baas",
+        "coding-agents",
         "mcp",
         "postgres",
         "auth",
-        "step-script"
+        "step-script",
+        "agent-native"
       ]
     }
   ]

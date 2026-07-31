@@ -1,6 +1,6 @@
 {
   "name": "spala",
-  "description": "Build and operate customer application backends through Spala MCP with guided architecture, auth, validation, publishing, and runtime review.",
+  "description": "Build and operate customer application backends through Spala MCP with Step Script, data and API workflows, auth and ownership rules, deterministic validation, publishing, and runtime review.",
   "version": "1.2.0",
   "author": {
     "name": "Spala",
