@@ -78,10 +78,12 @@ test('the package has no executable hooks or deployment code', async () => {
 
 test('client coverage and fallback installer are explicit', async () => {
   const manifest = await json('integration.manifest.json');
+  const claudeMarketplace = await json('.claude-plugin/marketplace.json');
   assert.deepEqual(
     Object.keys(manifest.clients).sort(),
     ['claude-code', 'cursor', 'gemini-cli', 'openai', 'vscode-copilot'],
   );
+  assert.equal(claudeMarketplace.name, 'spala-marketplace');
   assert.equal(manifest.fallbackInstaller.package, '@spala-ai/mcp-install');
   assert.match(manifest.fallbackInstaller.publicCommand, /--public --yes$/);
 });

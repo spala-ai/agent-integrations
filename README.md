@@ -20,11 +20,22 @@ bundled in this repository.
 
 ```text
 /plugin marketplace add spala-ai/agent-integrations
-/plugin install spala@spala-integrations
+/plugin install spala@spala-marketplace
 /reload-plugins
 ```
 
 Use `/mcp` if Claude Code asks you to complete browser authentication.
+
+The `spala-marketplace` identifier is retained from the earlier
+`spala-ai/claude-plugins` repository so the plugin install name does not
+change. To migrate an existing Claude-only marketplace:
+
+```text
+/plugin marketplace remove spala-marketplace
+/plugin marketplace add spala-ai/agent-integrations
+/plugin install spala@spala-marketplace
+/reload-plugins
+```
 
 ## ChatGPT And Codex
 
