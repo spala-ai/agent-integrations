@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spala Business Manager"
+  short_description: "Shape app scope for Spala generation"
+  default_prompt: "Use $spala-business-manager to define the business workflows and acceptance criteria for this app built with Spala."

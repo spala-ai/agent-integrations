@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spala System Architect"
+  short_description: "Plan app backends for Spala MCP"
+  default_prompt: "Use $spala-system-architect to design the app backend contract for Spala MCP."

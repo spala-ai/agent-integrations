@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_MCP_URL = 'https://mcp.spala.ai/mcp';
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 
 async function json(relative) {
   return JSON.parse(await readFile(path.join(root, relative), 'utf8'));
