@@ -27,7 +27,7 @@ const claudeMarketplace = await json('.claude-plugin/marketplace.json');
 const cursor = await json('.cursor-plugin/plugin.json');
 const cursorMarketplace = await json('.cursor-plugin/marketplace.json');
 const gemini = await json('gemini-extension.json');
-const openai = await json('plugins/spala/.codex-plugin/plugin.json');
+const openai = await json('.codex-plugin/plugin.json');
 const openaiMarketplace = await json('.agents/plugins/marketplace.json');
 const mcp = await json('.mcp.json');
 
@@ -75,11 +75,16 @@ assert(mcp.mcpServers?.spala_public_mcp?.url === PUBLIC_MCP_URL, 'Shared MCP URL
 assert(claude.mcpServers?.spala_public_mcp?.url === PUBLIC_MCP_URL, 'Claude MCP URL drifted.');
 assert(gemini.mcpServers?.spala_public_mcp?.httpUrl === PUBLIC_MCP_URL, 'Gemini MCP URL drifted.');
 assert(cursor.mcpServers === './.mcp.json', 'Cursor must use the shared MCP definition.');
-assert(openai.mcpServers === './.mcp.json', 'OpenAI must use its synchronized MCP definition.');
+assert(openai.mcpServers === './.mcp.json', 'OpenAI must use the shared MCP definition.');
+assert(openai.skills === './skills/', 'OpenAI must use the canonical root skills.');
 assert(cursorMarketplace.plugins.some(plugin => plugin.name === 'spala' && plugin.source === '.'), 'Cursor marketplace is not wired to the root plugin.');
 assert(claudeMarketplace.plugins.some(plugin => plugin.name === 'spala' && plugin.source === '.'), 'Claude marketplace is not wired to the root plugin.');
 assert(claudeMarketplace.name === 'spala-marketplace', 'Claude marketplace compatibility name drifted.');
-assert(openaiMarketplace.plugins.some(plugin => plugin.name === 'spala'), 'OpenAI marketplace is not wired to the Spala plugin.');
+assert(openaiMarketplace.plugins.some(plugin => (
+  plugin.name === 'spala'
+  && plugin.source?.source === 'local'
+  && plugin.source?.path === '.'
+)), 'OpenAI marketplace is not wired to the root Spala plugin.');
 
 const skillDirs = (await readdir(path.join(root, 'skills'), { withFileTypes: true }))
   .filter(entry => entry.isDirectory())

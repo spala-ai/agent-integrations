@@ -5,13 +5,11 @@
   "description": "Official Spala plugins and extensions for leading AI coding agents.",
   "type": "module",
   "scripts": {
-    "sync:openai": "node scripts/sync-openai.mjs",
-    "check:sync": "node scripts/sync-openai.mjs --check",
     "test": "node --test test/*.test.mjs",
     "validate": "node scripts/validate.mjs",
     "test:links": "node scripts/check-links.mjs",
     "test:links:release": "CHECK_REPOSITORY_URL=1 node scripts/check-links.mjs",
-    "ci": "pnpm check:sync && pnpm test && pnpm validate"
+    "ci": "pnpm test && pnpm validate"
   },
   "engines": {
     "node": ">=20"

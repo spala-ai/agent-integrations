@@ -31,16 +31,15 @@ test('all native manifests expose only the public Spala MCP', async () => {
   const shared = await json('.mcp.json');
   const claude = await json('.claude-plugin/plugin.json');
   const gemini = await json('gemini-extension.json');
-  const openai = await json('plugins/spala/.mcp.json');
+  const openai = await json('.codex-plugin/plugin.json');
 
   assert.deepEqual(Object.keys(shared.mcpServers), ['spala_public_mcp']);
   assert.deepEqual(Object.keys(claude.mcpServers), ['spala_public_mcp']);
   assert.deepEqual(Object.keys(gemini.mcpServers), ['spala_public_mcp']);
-  assert.deepEqual(Object.keys(openai.mcpServers), ['spala_public_mcp']);
   assert.equal(shared.mcpServers.spala_public_mcp.url, PUBLIC_MCP_URL);
   assert.equal(claude.mcpServers.spala_public_mcp.url, PUBLIC_MCP_URL);
   assert.equal(gemini.mcpServers.spala_public_mcp.httpUrl, PUBLIC_MCP_URL);
-  assert.equal(openai.mcpServers.spala_public_mcp.url, PUBLIC_MCP_URL);
+  assert.equal(openai.mcpServers, './.mcp.json');
 });
 
 test('public package contains no credentials, private infrastructure, or project MCP URLs', async () => {
@@ -88,20 +87,14 @@ test('client coverage and fallback installer are explicit', async () => {
   assert.match(manifest.fallbackInstaller.publicCommand, /--public --yes$/);
 });
 
-test('generated OpenAI assets exactly match the canonical skills and MCP config', async () => {
-  assert.equal(
-    await readFile(path.join(root, 'plugins/spala/.mcp.json'), 'utf8'),
-    await readFile(path.join(root, '.mcp.json'), 'utf8'),
-  );
+test('all clients share one canonical skill and MCP package', async () => {
+  const manifest = await json('integration.manifest.json');
+  const openai = await json('.codex-plugin/plugin.json');
+  const openaiMarketplace = await json('.agents/plugins/marketplace.json');
 
-  const canonicalSkills = (await readdir(path.join(root, 'skills'))).sort();
-  const generatedSkills = (await readdir(path.join(root, 'plugins/spala/skills'))).sort();
-  assert.deepEqual(generatedSkills, canonicalSkills);
-
-  for (const skill of canonicalSkills) {
-    assert.equal(
-      await readFile(path.join(root, 'plugins/spala/skills', skill, 'SKILL.md'), 'utf8'),
-      await readFile(path.join(root, 'skills', skill, 'SKILL.md'), 'utf8'),
-    );
-  }
+  assert.equal(manifest.clients.openai.manifest, '.codex-plugin/plugin.json');
+  assert.equal(openai.skills, './skills/');
+  assert.equal(openai.mcpServers, './.mcp.json');
+  assert.equal(openaiMarketplace.plugins[0]?.source?.path, '.');
+  assert.equal((await filesUnder(root)).some(file => file.startsWith('plugins/spala/')), false);
 });

@@ -111,13 +111,8 @@ After the public repository is created, run the release-only repository check:
 pnpm test:links:release
 ```
 
-The OpenAI marketplace package contains synchronized copies because its
-marketplace layout requires a nested plugin directory. Edit the root
-`skills/` or `.mcp.json`, then run:
-
-```bash
-pnpm sync:openai
-```
+All clients use the same root `skills/` directory and `.mcp.json`. There are
+no generated client-specific copies.
 
 ## License
 
