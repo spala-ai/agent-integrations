@@ -8,6 +8,12 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_MCP_URL = 'https://mcp.spala.ai/mcp';
 
+// Operator hosting account and host identifiers. A local pre-push hook catches
+// these too, but hooks live in .git: they never reach a contributor's clone or
+// CI, so the durable guard has to be here. Assembled from fragments because
+// this file is inside the tree it scans and would otherwise match itself.
+const PRIVATE_INFRA_MARKERS = ['hi' + '606571', 'progra' + '04', '347' + '8051'];
+
 async function filesUnder(directory, prefix = '') {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
@@ -57,8 +63,10 @@ test('public package contains no credentials, private infrastructure, or project
     /\/home\/[^/\s]+\/[^/\s]+/,
     /\/Users\/[^/\s]+\//,
     /\b(?:ftp|psql)\.tools\b/i,
+    /\badm\.tools\b/i,
     /https:\/\/(?:shared|api|[a-z0-9-]+)\.spala\.ai\/p[a-z0-9]+\/mcp/i,
     /https:\/\/p[a-z0-9]+\.spala\.ai\/mcp/i,
+    ...PRIVATE_INFRA_MARKERS.map(marker => new RegExp(`\\b${marker}\\b`, 'i')),
   ];
 
   for (const relative of await filesUnder(root)) {
