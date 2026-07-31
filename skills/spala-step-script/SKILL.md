@@ -1,6 +1,6 @@
 ---
 name: spala-step-script
-version: 1.4.1
+version: 1.4.2
 description: "Step Script grammar reference: resource blocks, directives, and step command forms accepted by the Spala compiler, plus what Step Script cannot express and the discovery loop. Use when writing or repairing Step Script for models, endpoints, flows, tasks, triggers, agents, or channels."
 ---
 

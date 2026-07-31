@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.1
+
+- Keep reviewed bundled skills as the trusted execution baseline.
+- Treat project MCP skill versions as review advisories and MCP-provided hashes
+  as transfer-integrity checks rather than publisher authentication.
+- Record verifiable canonical source provenance in the skill release lock.
+
 ## 1.3.0
 
 - Added recursive skill-package synchronization and a deterministic lock for
