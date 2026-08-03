@@ -1,6 +1,6 @@
 ---
 name: spala-backend
-version: 1.4.2
+version: 1.4.4
 description: "Route customer app backend work through the connected Spala project MCP. Use when a user wants Spala to build, change, secure, audit, or release a customer app backend."
 ---
 
@@ -11,7 +11,21 @@ for an app.
 
 ## Start
 
-1. Complete MCP authentication when required.
+1. Establish MCP readiness before inspecting or changing application files:
+   - If `spala_public_mcp` is already configured, do not install or register a
+     duplicate server.
+   - In Claude Code, when that server requires authentication, tell the user to
+     open `/mcp`, select `spala_public_mcp`, and complete **Authenticate**. The
+     browser should open automatically; Claude Code also provides a copyable
+     URL when it cannot. Retry `spala_start` immediately after approval.
+   - In Claude Code, if the server is absent, run
+     `claude plugin marketplace add spala-ai/agent-integrations` and
+     `claude plugin install spala@spala-marketplace`, then request
+     `/reload-plugins` or a new session. Do not continue in the pre-reload
+     session.
+   - Do not claim a non-interactive session makes setup impossible. Stop at the
+     exact user action the client requires, without planning, scaffolding,
+     coding, testing, or asking the user to repeat an app brief already given.
 2. Call `spala_start` immediately. Pass `workPhase` only when the current work
    is clear: `requirements`, `architecture`, `data`, `auth`, `logic`, `audit`,
    or `release`.

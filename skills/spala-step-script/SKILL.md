@@ -1,6 +1,6 @@
 ---
 name: spala-step-script
-version: 1.4.2
+version: 1.4.3
 description: "Step Script grammar reference: resource blocks, directives, and step command forms accepted by the Spala compiler, plus what Step Script cannot express and the discovery loop. Use when writing or repairing Step Script for models, endpoints, flows, tasks, triggers, agents, or channels."
 ---
 
@@ -53,7 +53,7 @@ Blocks: `MODEL`, `ENDPOINT`, `FLOW`, `TASK`, `TRIGGER`, `CHANNEL`, `AGENT`.
 
 ```
 CREATE model_name AS variable SET field=value, other_field=value
-UPDATE model_name WHERE field == value SET field=value AS variable
+UPDATE model_name WHERE field == value SET field=value AS variable [ALLOW_MISSING]
 DELETE model_name WHERE field == value
 FIND_ONE model_name WHERE field == value AS variable
 FIND_MANY model_name WHERE field == value AS variable [ORDER_BY field DESC] [LIMIT n] [OFFSET n]
@@ -70,7 +70,8 @@ form instead of read-then-write arithmetic:
 
 ```
 TRANSACTION
-  UPDATE events WHERE booked < COLUMN capacity SET booked = booked + 1 AS updated
+  UPDATE events WHERE booked < COLUMN capacity SET booked = booked + 1 AS updated ALLOW_MISSING
+  REQUIRE updated EXISTS ELSE THROW 409 "Capacity exhausted"
   CREATE bookings AS booking SET event_id=inputs.event_id, user_id=auth.userId
 END_TRANSACTION
 ```

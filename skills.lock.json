@@ -3,75 +3,75 @@
   "source": {
     "type": "git",
     "path": "mcp/skills",
-    "revision": "41185dd7820f3892a415f896e6394d9cde0cf6dd",
-    "treeSha256": "a5be04b9ff2ff5721e41f3fd44743190adc4353ff751cc39daaa7c5ab72daac6"
+    "revision": "49d296070d882326a3398cd3173d809947ac6b3f",
+    "treeSha256": "d38329c2bb108074ba0a09d58c0d03622946482fc86d9a9f092da16ff4c657df"
   },
-  "distributionVersion": "1.3.1",
+  "distributionVersion": "1.3.2",
   "skills": {
     "spala-auth-security": {
-      "version": "1.4.2",
-      "sha256": "21ef71fc4fe8b2ad828720f79778f741ed468536763b55607673514927d5078d",
+      "version": "1.4.3",
+      "sha256": "86848bc2e83e2bfecb41ab5fb562320cd2be2236470562a57cc848afa4eec962",
       "files": {
-        "SKILL.md": "21ef71fc4fe8b2ad828720f79778f741ed468536763b55607673514927d5078d"
+        "SKILL.md": "86848bc2e83e2bfecb41ab5fb562320cd2be2236470562a57cc848afa4eec962"
       }
     },
     "spala-backend": {
-      "version": "1.4.2",
-      "sha256": "554370f52ea0bab6cdf29af11b395da9eaef606136765a12aa513f38502d732e",
+      "version": "1.4.4",
+      "sha256": "2eae1206640c80f9facf514f3d870d72f1d1415066c60904f1a8f49fb02824ce",
       "files": {
-        "SKILL.md": "554370f52ea0bab6cdf29af11b395da9eaef606136765a12aa513f38502d732e"
+        "SKILL.md": "2eae1206640c80f9facf514f3d870d72f1d1415066c60904f1a8f49fb02824ce"
       }
     },
     "spala-business-manager": {
-      "version": "1.4.2",
-      "sha256": "701a7a4639b65dd27ec57350663458aa60e1f2cd59fb421c3e91f1900a59c04e",
+      "version": "1.4.3",
+      "sha256": "c2b42df1c5df3089b82f72c1f677496b3c1c403f42404c7752e6076f2ab8214d",
       "files": {
         "agents/openai.yaml": "0fc74cfd5cca0b3f0be9ae3edd409a472feac2d9f2199a6b12b048340f6ba6a1",
-        "SKILL.md": "701a7a4639b65dd27ec57350663458aa60e1f2cd59fb421c3e91f1900a59c04e"
+        "SKILL.md": "c2b42df1c5df3089b82f72c1f677496b3c1c403f42404c7752e6076f2ab8214d"
       }
     },
     "spala-data-modeler": {
-      "version": "1.4.2",
-      "sha256": "595a3fbc3b76c4fb9ff824e54baff864d3eb65c16992e3bef9dea8103e694f9b",
+      "version": "1.4.3",
+      "sha256": "c850cf1eef3f63c88977976143c5f0beee7badb26a636cd1f5df1f3c6c9b179f",
       "files": {
-        "SKILL.md": "595a3fbc3b76c4fb9ff824e54baff864d3eb65c16992e3bef9dea8103e694f9b"
+        "SKILL.md": "c850cf1eef3f63c88977976143c5f0beee7badb26a636cd1f5df1f3c6c9b179f"
       }
     },
     "spala-developer": {
-      "version": "1.4.2",
-      "sha256": "5aa012d03a95035b18797e1d7f2ca59379f5f5dc60b1cb11468e7c30748b3c60",
+      "version": "1.4.3",
+      "sha256": "82d134435f4ddb239b44b074f87ff740e6060cd8ce403daa375295fdd8f32c8c",
       "files": {
         "agents/openai.yaml": "3a74fd2594f7f2d5424eab0007ac8537225bc7079bc93b5c8efba4bb9de7fa2f",
-        "SKILL.md": "5aa012d03a95035b18797e1d7f2ca59379f5f5dc60b1cb11468e7c30748b3c60"
+        "SKILL.md": "82d134435f4ddb239b44b074f87ff740e6060cd8ce403daa375295fdd8f32c8c"
       }
     },
     "spala-endpoint-workflow": {
-      "version": "1.4.2",
-      "sha256": "a321652c18debd1f126d08b556ef357a38adde7d677a06a60058269c2a00d6ca",
+      "version": "1.4.3",
+      "sha256": "f7c68321b8475235eb8a0e7d6973fc17a312a0f76939c7e55a085c22e82e7232",
       "files": {
-        "SKILL.md": "a321652c18debd1f126d08b556ef357a38adde7d677a06a60058269c2a00d6ca"
+        "SKILL.md": "f7c68321b8475235eb8a0e7d6973fc17a312a0f76939c7e55a085c22e82e7232"
       }
     },
     "spala-security-auditor": {
-      "version": "1.4.2",
-      "sha256": "b2071573b5e76d8ccb36d671b4a9f6af94124cedaf2d3af87064fb1160af655b",
+      "version": "1.4.3",
+      "sha256": "3fffd971bbd1f7f69e59bbc1a071bbf6b892eb0abedb4a7ae02c208fbabaa56d",
       "files": {
-        "SKILL.md": "b2071573b5e76d8ccb36d671b4a9f6af94124cedaf2d3af87064fb1160af655b"
+        "SKILL.md": "3fffd971bbd1f7f69e59bbc1a071bbf6b892eb0abedb4a7ae02c208fbabaa56d"
       }
     },
     "spala-step-script": {
-      "version": "1.4.2",
-      "sha256": "9befb1dd9c76a41e453e981e3722235aa53e2f511e7ae87c46aa68ec9cc54745",
+      "version": "1.4.3",
+      "sha256": "18b70ea2510c9c368a1dd9a0d74f2221699801dae751a1a94b48b4dcf0da75c8",
       "files": {
-        "SKILL.md": "9befb1dd9c76a41e453e981e3722235aa53e2f511e7ae87c46aa68ec9cc54745"
+        "SKILL.md": "18b70ea2510c9c368a1dd9a0d74f2221699801dae751a1a94b48b4dcf0da75c8"
       }
     },
     "spala-system-architect": {
-      "version": "1.4.2",
-      "sha256": "1afea631ba966f1dda4117082735d4cc9b0ca64bda2710a5875d789e0d4b3171",
+      "version": "1.4.3",
+      "sha256": "48e4f422fc5d052a39c3a01842d3c5a01b3013d5ad52d164d4c6051bbee491f4",
       "files": {
         "agents/openai.yaml": "65781c583e8510e3845f5ec7ae4c8bcbfe740be08862f996f48f3879d0345413",
-        "SKILL.md": "1afea631ba966f1dda4117082735d4cc9b0ca64bda2710a5875d789e0d4b3171"
+        "SKILL.md": "48e4f422fc5d052a39c3a01842d3c5a01b3013d5ad52d164d4c6051bbee491f4"
       }
     }
   }

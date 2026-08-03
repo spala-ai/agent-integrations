@@ -1,6 +1,6 @@
 ---
 name: spala-business-manager
-version: 1.4.2
+version: 1.4.3
 description: "Define business scope, workflows, acceptance criteria, and product summaries for customer apps built with Spala before or during backend generation."
 ---
 
