@@ -1,6 +1,6 @@
 ---
 name: spala-security-auditor
-version: 1.4.2
+version: 1.4.3
 description: "Audit and repair security issues in customer app backends built with Spala MCP, including auth, tenant scope, secrets, integrations, SQL/custom code, webhooks, destructive actions, and generated API safety."
 ---
 

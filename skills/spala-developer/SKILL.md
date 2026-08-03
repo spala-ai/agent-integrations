@@ -1,6 +1,6 @@
 ---
 name: spala-developer
-version: 1.4.2
+version: 1.4.3
 description: "Build or modify customer app backends with Spala from a local CLI or IDE agent through Spala MCP: staged AI build, Step Script, validation, focused repair, publishing, and project_test_review."
 ---
 

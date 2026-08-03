@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2
+
+- Define the Claude Code readiness sequence for plugin registration, reload,
+  browser OAuth through `/mcp`, and the first `spala_start` call.
+- Prevent application scaffolding while the public or project MCP is not ready.
+
 ## 1.3.1
 
 - Keep reviewed bundled skills as the trusted execution baseline.

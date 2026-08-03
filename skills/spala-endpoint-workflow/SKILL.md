@@ -1,6 +1,6 @@
 ---
 name: spala-endpoint-workflow
-version: 1.4.2
+version: 1.4.3
 description: "Design, build, repair, validate, and publish customer app endpoints, flows, tasks, triggers, agents, channels, and runtime API behavior through Spala MCP."
 ---
 
