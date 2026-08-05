@@ -1,6 +1,6 @@
 ---
 name: spala-backend
-version: 1.4.4
+version: 1.4.6
 description: "Route customer app backend work through the connected Spala project MCP. Use when a user wants Spala to build, change, secure, audit, or release a customer app backend."
 ---
 
@@ -58,8 +58,9 @@ are not a required sequence before `spala_start`.
 
 - Use the mandatory inspections returned for the selected phase as the live
   project evidence.
-- For resource changes, preview before apply; then validate, publish, and run
-  `project_test_review`.
+- For resource changes, preview first, then call `builder_apply_step_script`
+  with `apply=true` and `publish=true` to save and publish the reviewed
+  candidate; run `project_validate` and `project_test_review` afterward.
 - Keep auth, ownership, tenant isolation, resource semantics, and secret fields
   explicit.
 - Do not replace Spala-managed backend resources with another backend unless

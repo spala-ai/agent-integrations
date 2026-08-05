@@ -1,6 +1,6 @@
 ---
 name: spala-auth-security
-version: 1.4.3
+version: 1.4.6
 description: "Design, build, or review auth, password handling, ownership, tenant isolation, roles, sessions, invitations, and secret fields for customer apps built with Spala MCP."
 ---
 
@@ -68,8 +68,11 @@ Use the normal Spala write boundary:
 1. Build or repair with Step Script.
 2. Run `step_script_to_json` with safe repairs when useful.
 3. Run `builder_preview_step_script`.
-4. Apply only after preview passes.
-5. Run `project_validate`, `project_publish`, and `project_test_review`.
+4. After preview passes, call `builder_apply_step_script` with `apply=true`,
+   `validate=true`, and `publish=true`.
+5. Run `project_validate` and `project_test_review`. Use `project_publish` only
+   for an already-saved draft and pass the exact `resourceIds` returned by its
+   write.
 
 Treat any auth, ownership, tenant, access-policy, or secret-field warning as a
 must-fix item unless the product plan explicitly proves it is safe.

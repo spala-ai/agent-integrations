@@ -1,6 +1,6 @@
 ---
 name: spala-step-script
-version: 1.4.3
+version: 1.4.6
 description: "Step Script grammar reference: resource blocks, directives, and step command forms accepted by the Spala compiler, plus what Step Script cannot express and the discovery loop. Use when writing or repairing Step Script for models, endpoints, flows, tasks, triggers, agents, or channels."
 ---
 
@@ -9,6 +9,9 @@ description: "Step Script grammar reference: resource blocks, directives, and st
 Compact reference for the Step Script surface. The compiler's own error messages
 enumerate supported forms and always win over this document. When unsure, run
 `step_script_validate` / `step_script_to_json` and follow the error text.
+`step_script_validate` checks compiler syntax and conversion only; it does not
+prove publish readiness. Use `builder_preview_step_script` for publish-candidate
+validation before applying.
 
 ## Document Shape
 
@@ -33,7 +36,9 @@ Blocks: `MODEL`, `ENDPOINT`, `FLOW`, `TASK`, `TRIGGER`, `CHANNEL`, `AGENT`.
 
 - ENDPOINT: method and path live on the header line —
   `ENDPOINT GET|POST|PUT|PATCH|DELETE /path`. Body directives: `AUTH true` /
-  `PUBLIC`, `NAME`, `INPUT name type [required]`, `RESPONSE`. CRUD shorthand:
+  `PUBLIC`, `NAME`, `INPUT name [location] type required|optional`, `RESPONSE`.
+  Inputs default to required when the modifier is omitted; write `optional`
+  explicitly for partial updates. CRUD shorthand:
   `OPERATION list|get|create|update|delete` paired with `MODEL table_name`.
 - TASK: `SCHEDULE "0 9 * * *"` (cron, validated) or
   `SCHEDULE {"frequency":1,"frequencyUnit":"minutes"}`, `ACTIVE`, `RUN_ASYNC`.
@@ -187,4 +192,6 @@ validation. Prefer `FIND_ONE`/`FIND_MANY` whenever they can express the query.
 1. `step_script_to_json` with `applySafeRepairs=true`,
    `includeRepairedScript=true` — read the repaired script diff.
 2. `builder_preview_step_script` — fix only the named resource/step blockers.
-3. `builder_apply_step_script` after a clean preview.
+3. After a clean preview, call `builder_apply_step_script` with `apply=true`,
+   `validate=true`, and `publish=true` to save and publish that reviewed
+   candidate. Use `publish=false` only when an intentional draft is required.

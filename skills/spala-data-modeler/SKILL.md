@@ -1,6 +1,6 @@
 ---
 name: spala-data-modeler
-version: 1.4.3
+version: 1.4.6
 description: "Design or review customer app backend models, fields, relationships, resource semantics, product database switching, and schema contracts through Spala MCP."
 ---
 
@@ -65,8 +65,11 @@ database tables, or schema repairs.
 1. Use Step Script `MODEL` blocks for schema changes.
 2. Run `step_script_to_json` with `applySafeRepairs=true`.
 3. Run `builder_preview_step_script`.
-4. Run `project_validate` and `project_get_graph`.
-5. Publish only selected changed resources plus dependency closure.
+4. After preview passes, call `builder_apply_step_script` with `apply=true`,
+   `validate=true`, and `publish=true` so the reviewed model candidate and its
+   dependency closure share one publish operation.
+5. Run `project_validate` and `project_get_graph`. Use `project_publish` only
+   for already-saved drafts, with the exact returned `resourceIds`.
 
 Treat stale field references, broken relationship paths, duplicate model
 meaning, secret response exposure, and unscoped tenant relationships as

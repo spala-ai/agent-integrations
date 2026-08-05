@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.3
+
+- Clarify Step Script input requiredness and compiler-only validation scope.
+- Direct agents to publish-candidate preview before applying generated backends.
+
 ## 1.3.2
 
 - Define the Claude Code readiness sequence for plugin registration, reload,

@@ -1,6 +1,6 @@
 ---
 name: spala-developer
-version: 1.4.3
+version: 1.4.6
 description: "Build or modify customer app backends with Spala from a local CLI or IDE agent through Spala MCP: staged AI build, Step Script, validation, focused repair, publishing, and project_test_review."
 ---
 
@@ -182,10 +182,13 @@ Use this loop when the local CLI agent is generating the backend.
 7. If preview returns blockers, read `blockingIssues` and `repairFeedback`,
    return a complete corrected Step Script for the affected resource, and
    preview again before applying.
-8. Apply only after preview is valid by calling `builder_apply_step_script`
-   with `dryRun=false`, `validate=true`, `publish=false`, and `upsert=true`.
-9. Verify the write boundary with `project_validate`, `project_publish`, and
-   `project_test_review`.
+8. After preview is valid, save and publish the same reviewed candidate with
+   `builder_apply_step_script` using `apply=true`, `validate=true`,
+   `publish=true`, and `upsert=true`.
+9. Verify with `project_validate` and `project_test_review`. Use
+   `project_publish` only for an already-saved UI/raw draft or an intentionally
+   draft-only Step Script write, and pass the exact `resourceIds` returned by
+   that write.
 10. If frontend code needs a typed client after publish, call
     `project_get_sdk`.
 

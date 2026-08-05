@@ -1,6 +1,6 @@
 ---
 name: spala-security-auditor
-version: 1.4.3
+version: 1.4.6
 description: "Audit and repair security issues in customer app backends built with Spala MCP, including auth, tenant scope, secrets, integrations, SQL/custom code, webhooks, destructive actions, and generated API safety."
 ---
 
@@ -192,8 +192,10 @@ to fix, otherwise keep collecting findings before reporting.
 - Do not invent real secret values. If env values are missing, report the exact
   keys and use `project_update_config` only with user-provided or secret-manager
   values.
-- After repair, rerun `project_validate`; if publishing is in scope, run
-  `project_publish` and `project_test_review`.
+- After a clean repair preview, publish through `builder_apply_step_script` with
+  `apply=true` and `publish=true`, then rerun `project_validate` and
+  `project_test_review`. Use `project_publish` only for already-saved drafts,
+  with their exact returned `resourceIds`.
 
 ## Repair Playbooks
 
@@ -245,7 +247,9 @@ Before saying the generated backend is security-reviewed:
 - All Critical and High findings are fixed or explicitly accepted by the user
   with the business reason recorded.
 - `project_validate` passes after the final repair.
-- If publish was requested, `project_publish` succeeds for the intended scope and
-  `project_test_review` has no unresolved security repair feedback.
+- If publish was requested, the reviewed Step Script operation reaches
+  `published`, or an already-saved draft succeeds through `project_publish`
+  with its exact `resourceIds`; `project_test_review` has no unresolved security
+  repair feedback.
 - The final answer names the inspected models/endpoints/tasks/triggers/agents and
   any areas not covered by available evidence.
