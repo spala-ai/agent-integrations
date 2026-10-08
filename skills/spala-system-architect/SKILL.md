@@ -1,6 +1,6 @@
 ---
 name: spala-system-architect
-version: 1.4.3
+version: 1.4.18
 description: "Design backend architecture and resource contracts for customer apps built through Spala MCP: models, endpoints, auth, ownership, resource semantics, addons, and technical build plans."
 ---
 
@@ -38,6 +38,37 @@ Use this skill only to plan a backend for an app being built with Spala MCP.
 - Plan login as username/email lookup plus `Verify Password`; never as a database filter comparing the configured auth password field with submitted plaintext.
 - Treat Custom Code and direct SQL as exceptions. Use them only when native steps cannot represent the behavior.
 - Make auth, ownership, tenant isolation, resource semantics, and access policy explicit.
+- Plan project-model relationships as explicit `Table Reference` contracts and
+  derive identifier types from the current model schema. Do not assume UUIDs
+  from `*_id` names; new Step Script models default to numeric auto-increment
+  IDs unless UUID is explicitly part of the design.
+- Distinguish mutable staging schema work from production inspection and
+  reviewed schema promotion; do not plan direct production schema editing.
+- Treat `ACCESS_PROOF` as declarative static-analysis metadata, never as the
+  credential check itself. Require a real credential comparison, missing-record
+  guard, and downstream owner or tenant binding.
+- Plan exported releases with stored environment, database, and addon
+  credentials stripped. Explicitly authored executable literals are preserved
+  with nonblocking, value-free warnings for suspected credentials, even when
+  the same value exists in stored configuration. Configuration fields remain
+  redacted. The final artifact check rejects detected known configuration
+  credential values absent from authored executable source or its static
+  literal AST.
+  Do not assume automatic externalization of literals or public export-policy
+  modes. Persistent Node is the target for supported persistent features, not
+  a promise of complete hosted-feature parity. Review release capabilities and
+  provider compatibility before planning background tasks, agents or database
+  policies. Vercel is HTTP-focused and does not supply a persistent scheduler,
+  background worker or Socket.IO service; Netlify requires a separate adapter.
+  Destination secrets remain outside Spala MCP.
+- Supported agent webhooks require persistent Node and destination-supplied
+  secrets from the generated environment contract. Valid webhook signatures
+  authenticate senders, not product users. Schedule, database-change and socket
+  automatic agent activation, and Vercel agent webhooks, remain rejected; do not
+  substitute no-ops or assume ordinary task/trigger support activates agents.
+- Treat validated addon `credentialBindings` maps as nonsecret references to
+  runtime environment-variable names. Exports retain these references while
+  redacting actual credential values; malformed binding values are omitted.
 - Do not invent field IDs. Use model and field names in the plan; the developer skill must resolve current IDs through MCP context.
 - Do not approve publish. The developer skill must preview, apply, validate, publish, and review.
 

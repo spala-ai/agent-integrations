@@ -1,6 +1,6 @@
 ---
 name: spala-backend
-version: 1.4.4
+version: 1.4.18
 description: "Route customer app backend work through the connected Spala project MCP. Use when a user wants Spala to build, change, secure, audit, or release a customer app backend."
 ---
 
@@ -50,16 +50,28 @@ for an app.
 6. `audit` -> `spala-security-auditor`
 7. `release` -> `spala-developer`
 
-`mcp_get_onboarding`, `mcp_get_tool_map`, `mcp_list_skills`, and
-`mcp_get_skill` remain available for compatibility and deeper discovery. They
-are not a required sequence before `spala_start`.
+The default/full MCP profile retains `mcp_get_onboarding`, `mcp_get_tool_map`,
+`mcp_list_skills`, and `mcp_get_skill` for compatibility and deeper discovery.
+An opt-in `profile=guided` connection advertises only the normal deterministic
+build, publish, validation, test, and runtime-data loop; it keeps
+`spala_start` and `mcp_get_skill`, but intentionally omits advanced addon,
+hosted-AI, frontend, raw builder CRUD, and deployment tools. Switch to the same
+MCP URL without `profile=guided` only when the task actually needs one of those
+surfaces.
 
 ## Safety Boundary
 
 - Use the mandatory inspections returned for the selected phase as the live
   project evidence.
-- For resource changes, preview before apply; then validate, publish, and run
-  `project_test_review`.
+- For supported endpoint operations, preview the typed operation plan, retain
+  its `reviewReceipt`, and apply the same plan with that receipt. For other
+  resource changes, preview and apply the same Step Script with
+  `apply=true` and `publish=true`. Run `project_validate` and
+  `project_test_review` afterward.
+- Use `project_run_endpoint.cases` for up to ten sequential assertions. A
+  successful 2xx/3xx case must include `expectedBodyContains` unless an
+  intentionally status-only probe sets `allowStatusOnlySuccess=true`.
+  Exact 401/403 authorization checks pass on status; any mismatch fails.
 - Keep auth, ownership, tenant isolation, resource semantics, and secret fields
   explicit.
 - Do not replace Spala-managed backend resources with another backend unless

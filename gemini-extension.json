@@ -1,6 +1,6 @@
 {
   "name": "spala",
-  "version": "1.3.2",
+  "version": "1.3.4",
   "description": "Build and operate customer application backends through Spala MCP.",
   "contextFileName": "GEMINI.md",
   "mcpServers": {

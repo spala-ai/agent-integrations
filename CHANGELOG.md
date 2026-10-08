@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.4
+
+- Sync canonical skills 1.4.18 with native Vector fields and Similarity Search guidance.
+
 ## 1.3.2
 
 - Define the Claude Code readiness sequence for plugin registration, reload,

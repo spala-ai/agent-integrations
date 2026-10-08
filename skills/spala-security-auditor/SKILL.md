@@ -1,6 +1,6 @@
 ---
 name: spala-security-auditor
-version: 1.4.3
+version: 1.4.18
 description: "Audit and repair security issues in customer app backends built with Spala MCP, including auth, tenant scope, secrets, integrations, SQL/custom code, webhooks, destructive actions, and generated API safety."
 ---
 
@@ -139,6 +139,9 @@ to fix, otherwise keep collecting findings before reporting.
   membership fields, identify its trusted scope source.
 - For every read/update/delete on those models, verify the filter contains a
   trusted auth/membership/token/admin proof.
+- When `ACCESS_PROOF` is declared, verify the implementation still compares the
+  supplied credential, rejects a missing record, and binds downstream access to
+  the proven owner or tenant. The declaration alone is not authentication.
 - For every create, verify owner/tenant fields are set from trusted context, not
   request body.
 - Flag update/delete/bulk actions that can operate without a per-record scoped
@@ -191,9 +194,13 @@ to fix, otherwise keep collecting findings before reporting.
   classification to make validation pass.
 - Do not invent real secret values. If env values are missing, report the exact
   keys and use `project_update_config` only with user-provided or secret-manager
-  values.
-- After repair, rerun `project_validate`; if publishing is in scope, run
-  `project_publish` and `project_test_review`.
+  values. Treat it as a partial patch, require exact acknowledgement of the
+  requested keys, and verify fresh metadata with `project_get_env_requirements`;
+  never require a secret value to round-trip in a tool response.
+- After a clean repair preview, publish through `builder_apply_step_script` with
+  `apply=true` and `publish=true`, then rerun `project_validate` and
+  `project_test_review`. Use `project_publish` only for already-saved drafts,
+  with their exact returned `resourceIds`.
 
 ## Repair Playbooks
 
@@ -245,7 +252,9 @@ Before saying the generated backend is security-reviewed:
 - All Critical and High findings are fixed or explicitly accepted by the user
   with the business reason recorded.
 - `project_validate` passes after the final repair.
-- If publish was requested, `project_publish` succeeds for the intended scope and
-  `project_test_review` has no unresolved security repair feedback.
+- If publish was requested, the reviewed Step Script operation reaches
+  `published`, or an already-saved draft succeeds through `project_publish`
+  with its exact `resourceIds`; `project_test_review` has no unresolved security
+  repair feedback.
 - The final answer names the inspected models/endpoints/tasks/triggers/agents and
   any areas not covered by available evidence.

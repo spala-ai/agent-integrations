@@ -1,7 +1,7 @@
 ---
 name: spala-developer
-version: 1.4.3
-description: "Build or modify customer app backends with Spala from a local CLI or IDE agent through Spala MCP: staged AI build, Step Script, validation, focused repair, publishing, and project_test_review."
+version: 1.4.18
+description: "Build, validate, publish, review, or hand off a customer app backend for external deployment through Spala MCP from a local CLI or IDE agent."
 ---
 
 # Spala Developer
@@ -10,6 +10,14 @@ Use this skill when the local CLI or IDE agent should use Spala as the backend
 platform through MCP. Spala is the system of record for backend schema,
 auth, validation, publish, and runtime review. Do not bypass MCP by editing
 project files directly.
+
+## Native vector search
+
+Use `Vector` fields for embeddings and native `Similarity Search` with the
+required owner/tenant filters. Do not store search embeddings in JSON arrays
+or compute cosine similarity in Custom Code. Keep dimensions and embedding
+model consistent. If pgvector is missing, request operator setup; do not
+fallback to JSON. Migrating existing JSON embeddings requires approval.
 
 ## Trigger Boundary
 
@@ -26,6 +34,12 @@ Choose one mode from the user's intent and the connected server capabilities.
 - **Local CLI Step Script**: use when this CLI agent should generate backend
   candidates itself. Draft Step Script locally, then let MCP convert, preview,
   validate, apply, publish, and review.
+- **Typed operation plan**: use for supported CRUD, owner-scoped CRUD, status
+  transitions, and parent-child endpoints. It compiles deterministically
+  against the live schema and can be more compact for guarded operations.
+  Preview with `builder_preview_operation_plan`, retain its `reviewReceipt`,
+  then apply the identical plan and receipt with
+  `builder_apply_operation_plan` only after preview passes.
 - **Surgical repair**: use when validation names one resource, step, or step
   group. Patch only that scope; do not rewrite the whole project.
 
@@ -34,6 +48,12 @@ Start release and final implementation work by calling
 treat the returned builder context, state, validation, and test-review evidence
 as the live capability contract for the connected Spala server. Legacy
 onboarding and tool-map calls remain optional compatibility guidance.
+
+The default/full MCP URL retains every tool. An opt-in `profile=guided` URL
+advertises a smaller normal build, publish, validation, test, and runtime-data
+surface. Use guided for ordinary backend work; reconnect to the same URL
+without `profile=guided` only when addon lifecycle, hosted AI, frontend hosting,
+raw builder CRUD, or deployment handoff is actually required.
 
 When work moves to another phase, call `spala_start` with that phase and use
 only its focused skill route. Keep a reviewed bundled copy as the trusted
@@ -67,12 +87,19 @@ needed instead of probing random tools or relearning the Step Script surface.
 - Use inspect tools (`project_get_builder_context`, `project_get_state`,
   `project_get_graph`, `builder_list_*`, `builder_get_*`) before planning or
   writing.
-- Use candidate tools (`step_script_to_json`, `step_script_validate`,
-  `builder_preview_step_script`, `builder_apply_step_script`) for local Step
-  Script creation and draft saves.
+- Use candidate tools (`builder_preview_operation_plan`,
+  `builder_apply_operation_plan`, `step_script_to_json`,
+  `step_script_validate`, `builder_preview_step_script`,
+  `builder_apply_step_script`) for typed operations, local Step Script
+  creation, and draft saves.
 - Use publish-boundary tools (`project_validate`, `project_publish`,
   `project_test_review`, `project_run_endpoint`, `project_get_sdk`) only after
   candidate apply or when verifying a published/runtime surface.
+- Use `project_run_endpoint.cases` for up to ten sequential assertions with an
+  exact non-5xx `expectedStatus`. Successful 2xx/3xx cases require
+  `expectedBodyContains` unless `allowStatusOnlySuccess=true` explicitly marks
+  an intentionally status-only probe. Exact 401/403 authorization outcomes
+  pass on status; an unexpected status or any server error fails.
 - Use requirements tools (`addons_search`, `addons_get`, `addons_install`,
   `project_get_env_requirements`,
   `project_get_resource_semantics_requirements`) before integrations,
@@ -88,6 +115,14 @@ needed instead of probing random tools or relearning the Step Script surface.
   resource/step group.
 - Use data tools (`data_list`, `data_create`, `data_update`, `data_delete`)
   only for runtime application rows, not for project schema or endpoint design.
+- For Deploy Anywhere, use the project-scope runtime handoff tools. Spala
+  prepares the artifact with stored credentials stripped and verifies the result; the local agent
+  owns provider CLI, SSH, and production database migration execution. Keep
+  database and infrastructure credentials local; never send them through MCP.
+- For approved example frontend clones, use only the server-advertised clone
+  workflow and catalog asset. Review any declared colour-theme contract,
+  activate only after validation, and verify the cloned frontend points at the
+  destination project's backend. This is bounded static hosting, not SSR.
 - Treat `project_reset` as destructive and use it only after an explicit user
   request to reset the project.
 - Treat `ai_build`, `ai_build_start`, `ai_build_status`, and `ai_*` as
@@ -146,13 +181,19 @@ Use this loop for Spala-hosted generation.
 11. If `operator_guidance.required_env_vars`, `project_get_env_requirements`, or
    `project_test_review.environmentReview.missing` list variables, report them
    and ask the user or secret manager for real values. Do not invent secrets.
+   When authorized values are supplied, use `project_update_config` as a partial
+   patch, require its exact updated-key acknowledgement, then re-read environment
+   requirements. A successful response confirms key metadata, not secret values;
+   never expect or request those values back.
 12. If `retryManifest` is present, pass it back to `ai_build_start`/`ai_build`
    to retry only the failed resources or missing contracts.
 13. Run `project_validate`, publish only when blockers are gone, then run
    `project_test_review`.
 14. Review every warning before declaring the backend ready. Classify warnings
    as `must_fix`, `acceptable`, or `needs_user_decision` against the product
-   plan.
+   plan when warning triage is required. `POSSIBLE_HARDCODED_SECRET` remains
+   advisory and does not itself require a triage decision, repair, or publish
+   override; use environment references for confidential values.
 15. For acceptance measurement, call `ai_build_eval_benchmark` and use the fixed
    `spala.ai_build.fixed_backend_benchmark.v1` scenarios with the existing
    CLI Step Script matrix. Do not treat a single ad hoc prompt as pass/fail
@@ -174,6 +215,9 @@ Use this loop when the local CLI agent is generating the backend.
    - `project_get_env_requirements`
    - `project_get_builder_context.schema.auth`
    - `project_get_state.authConfig`
+   - `project_get_builder_context.schema.models` and
+     `contract.relationshipSafety` before any database read, write, filter,
+     join, or cross-model value flow
 4. Write a complete Step Script candidate for the changed resources.
 5. Convert and normalize without saving by calling `step_script_to_json` with
    `applySafeRepairs=true` and `includeRepairedScript=true`.
@@ -182,26 +226,49 @@ Use this loop when the local CLI agent is generating the backend.
 7. If preview returns blockers, read `blockingIssues` and `repairFeedback`,
    return a complete corrected Step Script for the affected resource, and
    preview again before applying.
-8. Apply only after preview is valid by calling `builder_apply_step_script`
-   with `dryRun=false`, `validate=true`, `publish=false`, and `upsert=true`.
-9. Verify the write boundary with `project_validate`, `project_publish`, and
-   `project_test_review`.
+8. After preview is valid, save and publish the same reviewed candidate with
+   `builder_apply_step_script` using `apply=true`, `validate=true`,
+   `publish=true`, and `upsert=true`.
+9. Verify with `project_validate` and `project_test_review`. Use
+   `project_publish` only for an already-saved UI/raw draft or an intentionally
+   draft-only Step Script write, and pass the exact `resourceIds` returned by
+   that write.
 10. If frontend code needs a typed client after publish, call
     `project_get_sdk`.
+
+For a supported single-endpoint operation, replace steps 4–8 with a version-1
+typed operation plan. Use exact model and field names from builder context,
+preview with `builder_preview_operation_plan`, and apply the identical plan
+with `builder_apply_operation_plan` plus the returned `reviewReceipt`. Review
+its generated Step Script and
+compiler diagnostics. If the compiler returns `UNSUPPORTED_INTENT` or
+`UNSUPPORTED_OPERATION`, use the normal Step Script loop; do not force an
+approximate plan.
 
 ## Dynamic Capability Discovery
 
 Do not rely on a memorized Step Script surface. Discover what the connected
 Spala server supports each time.
 
-- Use `project_get_builder_context.tools` to choose available inspect,
-  candidate, requirements, publish-boundary, frontend, and surgical-repair
-  tools.
+- Use `spala_start.mandatoryInspections` and the MCP client's advertised tool
+  list to choose callable tools. Guided builder context is schema-first and
+  intentionally omits the full tool catalog; request
+  `project_get_builder_context({ responseMode: "full" })` only when its complete
+  policy, API-surface, or tool-family metadata is needed.
 - Use `project_get_builder_context.schema` for current model names, field
   aliases, auth config, resource semantics, addons, and external API contracts.
+- Before editing an existing resource, call
+  `builder_get_step_script_history({ resourceType, id })`. Use its
+  `recommended.source`; an authored revision is recommended only when its
+  version matches current canonical state. Treat
+  `reference-only-stale-source` revisions as historical context, never as a
+  replacement draft. Inspect the recommendation's `redacted` state before
+  reuse. Repair any `[REDACTED]` placeholders or move those values to project
+  environment variables; history redaction is defense in depth, not a secret
+  storage mechanism.
 - Use `builder_get_<resource>({ mode: "step-script" })` to export compact
-  editable Step Script for endpoints, flows, tasks, triggers, agents, and
-  channels when supported.
+  Step Script generated from current canonical JSON when authored provenance
+  is unavailable or stale.
 - Use `builder_get_<resource>({ mode: "logic" })` or `mode: "gherkin"` only
   for human-readable understanding.
 - Use `builder_get_<resource>({ mode: "json" })` only when exact raw fields are
@@ -210,13 +277,83 @@ Spala server supports each time.
   `project_get_builder_context.contract`, follow the live contract over this
   static skill text.
 
+## Deploy Anywhere Handoff
+
+Use this only after the intended resource versions are published.
+Deployment tools are intentionally absent from `profile=guided`; reconnect to
+the unchanged full MCP URL for this separate phase.
+
+Exports strip stored environment, database, and addon credentials. Explicitly
+authored executable literals remain intact, with nonblocking, value-free
+`POSSIBLE_HARDCODED_SECRET` warnings for suspected credentials. Review these
+warnings and use runtime environment references for confidential values; the
+export does not automatically externalize literals or expose public export-policy
+modes. The final JSON and runtime-artifact check rejects detected stored
+credential values absent from authored executable content. Values already
+present in executable source or its static literal AST remain exportable even
+when the same value exists in configuration; environment, database, and addon
+configuration fields themselves remain redacted.
+
+Validated flat addon `credentialBindings` maps preserve runtime environment-variable
+names as nonsecret references. Configure their actual values at the destination;
+do not replace binding names with credentials. Malformed binding values are
+omitted from exported config and remain subject to secret collection.
+
+An export failure with `UNSUPPORTED_RELEASE_CAPABILITIES` (HTTP 422) identifies
+unsupported resources and steps. Use the returned IDs and capability reasons to
+choose supported steps or keep those resources on the hosted runtime. This is
+separate from nonblocking authored-literal warnings.
+
+1. Review and publish the exact intended draft-only changes, then run
+   `project_validate` and `project_test_review` before export.
+2. Call `project_prepare_runtime_export`. Download the ZIP from the local TUI
+   with its short-lived bearer capability and verify the returned SHA-256. Do
+   not repeat or commit the capability.
+3. Read `recipe.providerCompatibility` before choosing a destination. Run
+   `bundle.js` on SSH, SFTP, Railway, Render, and container targets. The archive
+   also includes a root `index.js` Vercel Node adapter and `vercel.json`.
+   Supported scheduled tasks, background workers and realtime channels need
+   a persistent runtime; the Vercel HTTP adapter does not supply those services.
+   Check release capabilities rather than assuming complete hosted parity on
+   persistent Node. Netlify still requires a separate adapter.
+   Supported agent webhooks also require persistent Node. Read exact current
+   and optional rotation secret names from `runtime-env.schema.json` and
+   `.env.example`; supply values only at the destination. Stored webhook
+   credentials are stripped, not copied from hosted config. A valid signature
+   does not assign product-user identity. Schedule/database/socket automatic
+   agent activation and Vercel agent webhooks remain rejected.
+4. Keep the production database credentials only in the local TUI/CI
+   environment. Never pass a connection string, password, provider token, or
+   other database credential through MCP.
+5. From the extracted archive, run `node database-migrate.mjs check` against
+   the actual production database before applying anything. Review the reported
+   operations. Then run `node database-migrate.mjs apply` for an approved
+   non-destructive migration. If `check` reports destructive operations, stop
+   for explicit user approval and add `--allow-destructive` only after that
+   review. The packaged `database-schema.sql` remains an empty-database
+   baseline; use the migration runner as the release-to-database workflow.
+6. Configure the returned environment-variable names and
+   `SPALA_DEPLOYMENT_CHALLENGE` at the target. Use local user-owned provider or
+   SSH tooling to deploy the selected runtime entrypoint.
+7. Call `project_register_production_environment`, then
+   `project_verify_production_environment`. Pass `provider: "vercel"` for a
+   Vercel deployment so verification avoids its reserved `/.well-known` path.
+   Treat ownership, reachability,
+   artifact integrity, and release identity as separate results.
+   Artifact integrity covers Spala's retained prepared ZIP; the remote runtime
+   is identified through `X-Spala-Build-Id`, not a remote file-by-file hash.
+8. Use `project_list_production_environments` for control-plane records and
+   `project_remove_production_environment` only when the user wants to remove
+   the Spala registration; removal does not stop the external service.
+
 ## Auth Contract
 
 Spala has managed JWT auth support. Use it instead of reimplementing auth
 unless the user explicitly asks for a custom provider flow.
 
-- Before creating or changing auth, read `project_get_builder_context.contract.authSafety`
-  and `project_get_builder_context.schema.auth`. Those are the source of truth
+- Before creating or changing auth, read `project_get_builder_context.schema.auth`
+  and the compact safety guidance. Request `responseMode: "full"` when the
+  complete `contract.authSafety` is needed. Those are the source of truth
   for the auth model, username field, and password field.
 - Spala-hosted AI build can create/configure signup, login, current-user, and
   auth wiring automatically. Do not ask the model to hand-write password
@@ -255,8 +392,8 @@ unless the user explicitly asks for a custom provider flow.
 
 - Use staged AI build or the Step Script preview/apply loop. Do not make random
   direct state writes.
-- Do not bypass `builder_preview_step_script` before saving local generated
-  backend resources.
+- Do not bypass the matching typed-operation or Step Script preview before
+  saving locally generated backend resources.
 - Do not publish while preview, `project_validate`, `operator_guidance`, or
   `project_test_review` has blockers.
 - Do not directly edit persisted project JSON or server project files.
@@ -265,11 +402,19 @@ unless the user explicitly asks for a custom provider flow.
 - Do not invent UUIDs or field IDs. Load current schema aliases from
   `project_get_builder_context`; use stable model/field names where Step
   Script supports them.
+- Do not infer an identifier type from an `*_id` name. New Step Script models
+  default to numeric auto-increment IDs. Inspect the target model's reported
+  primary key and use an explicit `Table Reference` for project-model
+  relationships; use scalar identifier fields only when they are intentional
+  and exactly type-compatible.
 - Prefer native Spala steps and value-chain filters. Use Custom Code or direct
   SQL only when explicitly required by the product behavior.
 - Treat deterministic repairs from `step_script_to_json` as syntax/reference
   normalization only. Business meaning and security semantics must remain
   explicit.
+- Do not mutate production schema through normal database selection or
+  introspection. Author changes in staging and use the explicit reviewed
+  promotion or packaged migration workflow for production.
 
 ## Repair Policy
 
