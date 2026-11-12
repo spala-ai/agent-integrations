@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.5
+
+- Prepare the Claude plugin for the Anthropic directory: listing icon, privacy
+  policy link, display name, license and repository fields in `plugin.json`.
+- Open the README with what the plugin contains and what it runs, sends and
+  fetches.
+
 ## 1.3.4
 
 - Sync canonical skills 1.4.18 with native Vector fields and Similarity Search guidance.
