@@ -12,6 +12,9 @@
   "repository": "https://github.com/spala-ai/agent-integrations",
   "license": "LicenseRef-Spala-Developer-Use",
   "privacyPolicyUrl": "https://spala.ai/privacy",
+  "termsOfServiceUrl": "https://spala.ai/terms",
+  "documentationUrl": "https://docs.spala.ai",
+  "supportUrl": "mailto:info@spala.ai",
   "icon": "./.claude-plugin/icon.png",
   "keywords": [
     "spala",
